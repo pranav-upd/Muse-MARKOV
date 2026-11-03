@@ -13,7 +13,7 @@
 ![Significance](https://img.shields.io/badge/McNemar-p%20%E2%89%88%200.0013-brightgreen)
 [![Live demo](https://img.shields.io/badge/demo-Hugging%20Face%20Space-FFD21E?logo=huggingface&logoColor=black)](https://huggingface.co/spaces/pranavupadhyaya52/muse_markov-benchtest)
 
-[Results](#results) · [How it works](#how-it-works) · [Quickstart](#quickstart) · [Try the model](#try-the-model) · [Live demo](https://huggingface.co/spaces/pranavupadhyaya52/muse_markov-benchtest) · [Limitations](#limitations-and-next-steps)
+[Results](#results) · [How it works](#how-it-works) · [Quickstart](#quickstart) · [Try the model](#try-the-model) · [Live demo](https://huggingface.co/spaces/pranavupadhyaya52/muse_markov-benchtest) · [Video](https://youtu.be/DikmQtIu3Us) · [Limitations](#limitations-and-next-steps)
 
 </div>
 
@@ -24,6 +24,16 @@
 > On BFCL v4 function calling (200 cases, deterministic scoring), the finetuned model scores **0.725 vs 0.63** for the base model: **+9.5 points**, with 26 finetuned-only wins against 7 base-only wins.
 >
 > **Live demo:** compare base vs finetuned in your browser on the [Hugging Face Space](https://huggingface.co/spaces/pranavupadhyaya52/muse_markov-benchtest).
+
+<div align="center">
+
+<a href="https://youtu.be/DikmQtIu3Us">
+  <img src="https://img.youtube.com/vi/DikmQtIu3Us/maxresdefault.jpg" alt="MARKOV - Model Assisted Reinforcement and Knowledge Improvement (video walkthrough)" width="640">
+</a>
+
+<sub>▶ <a href="https://youtu.be/DikmQtIu3Us">Watch the video walkthrough on YouTube</a></sub>
+
+</div>
 
 ## Table of contents
 
