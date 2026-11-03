@@ -1,7 +1,5 @@
 # MARKOV Harness — Model Assisted Reinforcement and Knowledge Improvement
 
-[![Demo video](https://img.youtube.com/vi/Id0ilSVboPM/0.jpg)](https://youtu.be/Id0ilSVboPM)
-
 **Why I built this.** As a contract software engineer at Turing.com, I saw firsthand how well-designed datasets are routinely used to improve frontier models — and how much of that improvement loop is still manual, ad hoc, and hard to reproduce. I wanted to build the training loop and harness I wished existed: drop in a curated dataset, and get out a finetuned model with judged rewards, rotating checkpoints, published weights, and independent benchmarks. This project is that attempt.
 
 GRPO finetuning of Muse Glimmer (30B) into a working software agent:
