@@ -4,7 +4,6 @@
 
 **Why I built this.** As a contract software engineer at Turing.com, I saw firsthand how well-designed datasets are routinely used to improve frontier models — and how much of that improvement loop is still manual, ad hoc, and hard to reproduce. I wanted to build the training loop and harness I wished existed: drop in a curated dataset, and get out a finetuned model with judged rewards, rotating checkpoints, published weights, and independent benchmarks. This project is that attempt.
 
-Maya is a backend developer racing a deadline: three vendor APIs to wire up before lunch. She pastes the docs into a chat with this finetuned Glimmer, and gets back exact `register_user(...)`-style calls — the kind BFCL's AST checker scores 145/200, against 126/200 for the base model.
 GRPO finetuning of Muse Glimmer (30B) into a working software agent:
 Modal training/inference (RTX PRO 6000, FP4), Langfuse-tracked eval on
 `PersonalAILab/AFM-WebAgent-RL-Dataset`, Muse Wonder as LLM judge,
