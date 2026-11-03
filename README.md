@@ -132,9 +132,6 @@ python eval.py                                   # GPQA Diamond, both weights
 - A Hugging Face token (for publishing weights)
 - API access to Muse Wonder (for the judge reward)
 
-> [!WARNING]
-> Keep keys in Modal secrets, never in the code.
-
 ## Try the model
 
 The finetuned LoRA is attached at request time on Modal, so **no local GPU is needed**. Two endpoints share one contract:
