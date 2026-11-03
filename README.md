@@ -1,8 +1,9 @@
-# Muse Glimmer Agent FT — GRPO Finetuning + lm_harness evaluation
+# Muse Glimmer Agent FT — GRPO Finetuning + Harbor Eval
 
 [![Demo video](https://img.youtube.com/vi/Id0ilSVboPM/0.jpg)](https://youtu.be/Id0ilSVboPM)
 
-GRPO finetuning of Muse Glimmer (28B) into a working software agent:
+Maya is a backend developer racing a deadline: three vendor APIs to wire up before lunch. She pastes the docs into a chat with this finetuned Glimmer, and gets back exact `register_user(...)`-style calls — the kind BFCL's AST checker scores 145/200, against 126/200 for the base model.
+GRPO finetuning of Muse Glimmer (30B) into a working software agent:
 Modal training/inference (RTX PRO 6000, FP4), Langfuse-tracked eval on
 `PersonalAILab/AFM-WebAgent-RL-Dataset`, Muse Wonder as LLM judge,
 LoRA published to `pranavupadhyaya52/muse_glimmer_agentFT`, and an
@@ -11,7 +12,7 @@ lm-eval harness (`eval.py`) for independent benchmarking.
 | File | Role |
 |---|---|
 | `starter.py` | Training, inference, judge, Langfuse harness, serving endpoints |
-| `eval.py` | LM eval driver (GPQA Diamond via `lm_harness` on Modal GPU) |
+| `eval.py` | Eval driver: GPQA Diamond via `lm_harness` on Modal GPU; BFCL v4 via `serve` endpoints + official `bfcl evaluate` |
 
 ## Benchmark: GPQA Diamond zero-shot (198 questions)
 
@@ -36,6 +37,24 @@ reading more into it.
 python eval.py --lm-tasks gpqa_diamond_zeroshot --lm-source both
 ```
 
+## Benchmark: BFCL v4 function calling (multiple + parallel, 100 cases each)
+
+| Weights | multiple | parallel | overall (micro) |
+|---|---|---|---|
+| Base | 55/100 (0.55) | 71/100 (0.71) | 126/200 (0.63) |
+| Finetuned | 66/100 (0.66) | 79/100 (0.79) | 145/200 (0.725) |
+
+Paired comparison on the same cases: +0.095 for the finetuned arm
+(26 ft-only wins vs 7 base-only, 48 both-wrong), McNemar p ≈ 0.0013,
+95% bootstrap CI [+0.04, +0.15].
+
+Method: generations via the Modal `serve` endpoints (both arms, temp 0),
+scored with the official `bfcl evaluate` (deterministic AST matching — no
+judge model involved). Seeded random sample of 100 per category (seed 7);
+results filed under stand-in model `meta-llama/Llama-3.1-8B-Instruct`
+(prompt-mode filing only — the generations are Glimmer's, so numbers are
+comparable across arms but not against the public leaderboard).
+
 Quickstart:
 
 ```powershell
@@ -52,11 +71,11 @@ python eval.py                                               # GPQA Diamond, bot
 
 **The problem.** Base models chat; they don't *do*. An agent that can't reliably act in a terminal, a repo, or a browser is a demo, not a tool. Closing that gap usually takes pretraining-scale budgets — out of reach for nearly everyone in this room.
 
-**What we built.** A complete, reproducible reinforcement-learning loop that teaches a Meta model to act. Muse Glimmer (28B) trains with GRPO on 10,000 agentic trajectories, guided by three reward signals: verifiable ground truth, strict reply-channel discipline, and a live Muse Wonder judge scoring every rollout in real time. Around it, production-grade plumbing: FP4 training on RTX PRO 6000 via Modal, rotating checkpoints, and one-click Hub publishing. Proof comes from a head-to-head GPQA Diamond run — 198 questions, base model versus finetuned, same harness, same seed — with the finetuned score hypothetically ahead (0.4343 vs 0.4141), though possibly within sampling variation.
+**What we built.** A complete, reproducible reinforcement-learning loop that teaches a Meta model to act. Muse Glimmer (30B) trains with GRPO on 10,000 agentic trajectories, guided by four reward terms: channel-format, answer-shape, verifiable ground truth, and a live Muse Wonder judge scoring every rollout in real time. Around it, production-grade plumbing: FP4 training on RTX PRO 6000 via Modal, rotating checkpoints, and one-click Hub publishing. Early evidence comes from two head-to-head runs — BFCL function-calling (below) and a GPQA Diamond probe — all base versus finetuned under identical harnesses and seeds, with the finetuned arm ahead in both, though the GPQA gap is small enough to be sampling variation.
 
 **Why it matters.** The weights are the demo; the *loop* is the product. Any team with tasks and a way to check answers can reuse this pipeline to mint their own specialist agents — ops runbooks, research triage, code repair — for the price of a training run, not a pretraining program.
 
-**Why this is Frontier work.** We didn't prompt a model and hope. We gave a machine a genuinely new capability — acting reliably inside real software environments — and proved it with independent benchmarks, not vibes. That's what happens when Meta's models meet the real world: the loop is open, reproducible, and waiting for the next domain.
+**Why this could be Frontier work.** We didn't prompt a model and hope. Here is the loop — training, judging, checkpointing, publishing, independent scoring — and here are the early results: a finetuned agent that writes valid function calls more often than the base it started from. That's what happens when Meta's models meet the real world: the loop is open, reproducible, and waiting for the next domain.
 
 ---
 
@@ -64,21 +83,23 @@ python eval.py                                               # GPQA Diamond, bot
 
 This project runs on three Muse models, each doing what it does best.
 
-**Muse Glimmer (28B)** is the athlete — the finetuning substrate. Through GRPO on 10,000 agentic trajectories, it learns what its pretraining never taught it: to act. Private reasoning on one channel, decisive answers on another, tool calls in live sandboxes instead of chat.
+**Muse Glimmer (30B)** is the athlete — the finetuning substrate. Through GRPO on 10,000 agentic trajectories, it learns what its pretraining never taught it: to act. Private reasoning on one channel, decisive answers on another, tool calls in live sandboxes instead of chat.
 
 **Muse Wonder** is the referee — called via API inference to judge every rollout in real time. Where answers are verifiable, ground truth rules; everywhere else, Wonder's scores become the reward signal that shapes the policy. No human labels, no waiting — the loop grades itself at machine speed.
 
-**Muse Spark 1.3** is the engineer — pair-programming inside OpenCode through the entire build. It scaffolded the training pipeline, diagnosed dead training steps from raw logs, verified the tokenizer against the model card, wired the lm_harness eval harness, and hardened the deployment endpoints. Every debugging turnaround in this project has Spark's fingerprints on it.
+**Muse Spark 1.3** is the engineer — pair-programming inside OpenCode through the entire build. It scaffolded the training pipeline, diagnosed dead training steps from raw logs, verified the tokenizer against the model card, wired the Harbor eval harness, and hardened the deployment endpoints. Every debugging turnaround in this project has Spark's fingerprints on it.
 
 Together: Glimmer learns, Wonder judges, Spark builds — a complete agent pipeline where Meta's models don't just participate, they staff every role.
 
 ---
 
-## 3. Architecture Review: Is It Sound? Does It Hit the Objective?
+## 3. Limitations and next steps
 
-**Is the architecture sound?** Yes — each layer does one job and the contracts between them hold. Modal owns compute (training on RTX PRO 6000, inference behind versioned endpoints, secrets never in code). GRPO owns learning (four-term rewards where no single signal can silently dominate, fallbacks at every failure point). The Hub owns continuity (same-name pushes; volume and local stay in sync by overwrite, never by accumulation). The harness owns proof (independent lm-eval runs, deterministic grading, no Wonder involvement). Verified claims throughout: tokenizer checked against the model card, channel behavior confirmed live, judge mechanism probed directly. The weak seam is compute, especially GPU: every stage — 40-hour training runs, per-trial 28B inference, parallel eval containers — competes for the same scarce accelerator budget, so iteration speed and eval scale are capped by hardware access, not by design.
-
-**Does it meet the objective?** Half-proven, by its own standard. "Acting reliably inside real software environments" — demonstrated in slices: channel-disciplined answers, productive gradient steps, trajectories stepping against live sandboxes. "Proved with independent benchmarks, not vibes" — *not yet*: the TerminalBench base-vs-finetuned head-to-head is staged and instrumented but unscored at the time of writing. The architecture earns the claim structurally; only completed scorecards earn it factually. Run the ten tasks — then the sentence is true.
+- **One task family scored.** BFCL covers single-turn function calling only; TerminalBench/OSWorld-style multi-step agency is instrumented but unscored.
+- **One finetune, one seed family.** Both reported gaps are single runs — the GPQA delta (+0.02) sits inside sampling noise, and even the significant BFCL delta (+0.095, p ≈ 0.0013) deserves a replication with a different sampling seed before it hardens into a claim.
+- **30B weights, 96GB bottleneck.** Every stage — training, per-trial inference, parallel eval containers — competes for the same scarce accelerator, so iteration speed and eval scale are capped by hardware access, not by design.
+- **Judge coverage is partial.** The Wonder judge scores training rollouts and the AFM eval split, but BFCL verdicts are pure AST matching — judge quality and verifier quality are never cross-checked against each other.
+- **Next:** score the remaining BFCL single-turn categories, rerun GPQA with a second seed, then attempt one multi-step TerminalBench slice to see if the channel discipline learned in training survives long-horizon tool use.
 
 ---
 
