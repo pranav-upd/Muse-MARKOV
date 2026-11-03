@@ -11,8 +11,9 @@
 ![Compute](https://img.shields.io/badge/compute-Modal%20%C2%B7%20RTX%20PRO%206000%20%C2%B7%20FP4-555)
 ![BFCL](https://img.shields.io/badge/BFCL%20v4-0.63%20%E2%86%92%200.725-brightgreen)
 ![Significance](https://img.shields.io/badge/McNemar-p%20%E2%89%88%200.0013-brightgreen)
+[![Live demo](https://img.shields.io/badge/demo-Hugging%20Face%20Space-FFD21E?logo=huggingface&logoColor=black)](https://huggingface.co/spaces/pranavupadhyaya52/muse_markov-benchtest)
 
-[Results](#results) · [How it works](#how-it-works) · [Quickstart](#quickstart) · [Try the model](#try-the-model) · [Limitations](#limitations-and-next-steps)
+[Results](#results) · [How it works](#how-it-works) · [Quickstart](#quickstart) · [Try the model](#try-the-model) · [Live demo](https://huggingface.co/spaces/pranavupadhyaya52/muse_markov-benchtest) · [Limitations](#limitations-and-next-steps)
 
 </div>
 
@@ -21,6 +22,8 @@
 > **TL;DR:** Drop in a dataset with checkable answers. Get back a finetuned model with judged rewards, rotating checkpoints, published weights and independent benchmark scores.
 >
 > On BFCL v4 function calling (200 cases, deterministic scoring), the finetuned model scores **0.725 vs 0.63** for the base model: **+9.5 points**, with 26 finetuned-only wins against 7 base-only wins.
+>
+> **Live demo:** compare base vs finetuned in your browser on the [Hugging Face Space](https://huggingface.co/spaces/pranavupadhyaya52/muse_markov-benchtest).
 
 ## Table of contents
 
@@ -134,12 +137,17 @@ python eval.py                                   # GPQA Diamond, both weights
 
 ## Try the model
 
-The finetuned LoRA is attached at request time on Modal, so **no local GPU is needed**. Two endpoints share one contract:
+The finetuned LoRA is attached at request time on Modal, so **no local GPU is needed**.
+
+**Live demo:** the [muse_markov-benchtest Space](https://huggingface.co/spaces/pranavupadhyaya52/muse_markov-benchtest) runs a side-by-side base vs finetuned benchmark comparison through these endpoints using the EleutherAI `lm_eval` harness (generation benchmarks such as GSM8K), with a results table, chart and downloadable Markdown / CSV / JSON reports.
+
+Or call the endpoints directly. Two endpoints share one contract:
 
 | Endpoint | Weights |
 |:---------|:--------|
 | `https://pranavupadhyaya52--muse-glimmer-grpo-serve.us-east.modal.run` | Finetuned |
 | `https://pranavupadhyaya52--muse-glimmer-grpo-serve-base.us-east.modal.run` | Clean base |
+
 **Request:** `POST {"prompt": str, "max_new_tokens"?: int, "temperature"?: float}`
 **Response:** `{"reply": str, "reasoning": str}`
 
