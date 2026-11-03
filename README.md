@@ -1,4 +1,6 @@
-MARKOV: Model Assisted Reinforcement and Knowledge Improvement
+## MARKOV: Model Assisted Reinforcement and Knowledge Improvement
+
+
 A reproducible GRPO loop that turns Muse Glimmer (30B) into a better tool-calling agent: drop in a dataset with checkable answers, get back a finetuned model with judged rewards, rotating checkpoints, published weights and independent benchmark scores.
 Result: on BFCL v4 function calling (200 cases, deterministic scoring), the finetuned model scores 0.725 vs 0.63 for the base model (+9.5 points, McNemar p ≈ 0.0013).
 Why this exists
